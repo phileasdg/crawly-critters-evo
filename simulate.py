@@ -17,9 +17,11 @@ os.chdir(os.path.dirname(__file__))
 # Connect to the physics sim GUI:
 physicsClient = p.connect(p.GUI)
 
-
 # Tell PyBullet where to look for files:
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
+
+# Optional: disable the GUI sidebars
+p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 
 ## WORLD SETUP ##
 
@@ -32,9 +34,6 @@ p.setGravity(0,0,-9.8)
 p.loadSDF("tower.sdf")
 # (a floor)
 planeId = p.loadURDF("plane.urdf")
-
-# Optional: disable the GUI sidebars
-# p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 
 # Step the world:
 for t in range(1000):
