@@ -29,7 +29,7 @@ p.setGravity(0,0,-9.8)
 
 # Import geometry 
 # (a single link)
-p.loadSDF("boxes.sdf")
+p.loadSDF("tower.sdf")
 # (a floor)
 planeId = p.loadURDF("plane.urdf")
 
