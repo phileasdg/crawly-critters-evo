@@ -27,8 +27,8 @@ def Create_Robot():
     pyrosim.Start_URDF("body.urdf")
     # Define the robot body:
     pyrosim.Send_Cube(name="Torso",pos=[0,0,0.5],size=[1,1,1]) # Link
-    pyrosim.Send_Joint(name="Torso_Leg",parent="Torso",child="Leg",type="revolute",position=[.5,0,1.0]) # Joint
-    pyrosim.Send_Cube(name="Leg",pos=[.5,0,0.5],size=[1,1,1]) # Link
+    pyrosim.Send_Joint(name="Torso_Leg",parent="Torso",child="Leg",type="revolute",position=[0,0,1.0]) # Joint
+    pyrosim.Send_Cube(name="Leg",pos=[0,0,0.5],size=[1,1,1]) # Link
     pyrosim.End()
 
 # Create the world
