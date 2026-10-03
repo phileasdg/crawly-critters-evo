@@ -7,35 +7,32 @@ from coming_from_wl import *
 # Set the save path to be the folder containing this file:
 os.chdir(os.path.dirname(__file__))
 
-# Tell pyrosim where to save the geometry:
-pyrosim.Start_SDF("tower.sdf")
+# Define a function to generate the world geometry:
+def Create_World():
+    # Tell pyrosim where to save the geometry:
+    pyrosim.Start_SDF("world.sdf")
 
-# Create a tower of boxes such that the bottom cube is 1m^3 and each
-# subsequent cube has 90% of the volume of the previous cube
+    # Send a cube to the world
+    pyrosim.Send_Cube(
+        name="Box",
+        pos=[-2,2,.5], 
+        size=[1,1,1])
 
-# Define a function to create a tower of cubes:
+    # Close the SDF file and write it to disk:
+    pyrosim.End()
 
-def create_tower(basePos=[0,0,0],nCubes=10,sideLength=1):
-    # Initiate base position, side length, and cube-center height variables:
-    bx, by, bz = basePos
-    side=sideLength
-    height=side/2 # center of the bottom box
-    for i in range(nCubes):
-        pyrosim.Send_Cube(
-            name=f"Box_{bx}_{by}_{i}",
-            pos=[bx, by, height],
-            size=[side, side, side])
-        height += side/2 # Move to the top of current cube
-        side*=0.9 # Shrink for next cube
-        height+=side/2 # Move to the center of next cube
+# Define a function to generate the a virtual robot to put in the world:
+def Create_Robot():
+    # Tell pyrosim where to save the geometry:
+    pyrosim.Start_URDF("body.urdf")
+    # Define the robot body:
+    pyrosim.Send_Cube(name="Torso",pos=[0,0,0.5],size=[1,1,1]) # Link
+    pyrosim.Send_Joint(name="Torso_Leg",parent="Torso",child="Leg",type="revolute",position=[.5,0,1.0]) # Joint
+    pyrosim.Send_Cube(name="Leg",pos=[.5,0,0.5],size=[1,1,1]) # Link
+    pyrosim.End()
 
-# Create a tower:
-# create_tower(basePos=[0,0,0],nCubes=9)
+# Create the world
+Create_World()
 
-# Create a grid of towers:
-for i in range(5):
-    for j in range(5):
-        create_tower(basePos=[i,j,0],nCubes=10,sideLength=1)
-
-# Close the SDF file and write it to disk:
-pyrosim.End()
+# Create the robot
+Create_Robot()
