@@ -6,9 +6,11 @@ import pybullet_data
 import time
 import pyrosim.pyrosim as pyrosim
 import numpy as np
+import random
 
 # My own imports:
 import os
+import math
 
 ## FILE SETUP ##
 
@@ -19,7 +21,7 @@ os.chdir(os.path.dirname(__file__))
 # 1. Simulation Parameters: #
 
 # Simulation duration (ticks):
-simDuration = 2000
+simDuration = 10000
 
 # Initialize an array to store sensor values over time:
 backLegSensorValues = np.zeros(simDuration)
@@ -55,13 +57,27 @@ robotID=p.loadURDF("data/robots/body.urdf")
 pyrosim.Prepare_To_Simulate(robotID)
 
 ## SIMULATION LOOP ##
-
+# Headstart (to give me time to start recording my video)
+# p.stepSimulation()
+# time.sleep(3)
 # Step the world:
 for t in range(simDuration):
     # print(f"t={t}")
     p.stepSimulation()
     backLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
     frontLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
+    pyrosim.Set_Motor_For_Joint(
+        bodyIndex=robotID,
+        jointName=b"Torso_BackLeg",
+        controlMode=p.POSITION_CONTROL,
+        targetPosition=random.uniform(-math.pi/2,math.pi/2),
+        maxForce=50)
+    pyrosim.Set_Motor_For_Joint(
+        bodyIndex=robotID,
+        jointName=b"Torso_FrontLeg",
+        controlMode=p.POSITION_CONTROL,
+        targetPosition=random.uniform(-math.pi/2,math.pi/2),
+        maxForce=50)
     time.sleep(1/240)
     
 p.disconnect()
