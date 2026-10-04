@@ -37,6 +37,8 @@ p.loadSDF("world.sdf")
 # (the robot geometry)
 p.loadURDF("body.urdf")
 
+## SIMULATION LOOP ##
+
 # Step the world:
 for t in range(5000):
     print(f"t={t}")
