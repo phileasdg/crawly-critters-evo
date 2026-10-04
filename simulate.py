@@ -4,6 +4,7 @@
 import pybullet as p
 import pybullet_data
 import time
+import pyrosim.pyrosim as pyrosim
 
 # My own imports:
 import os
@@ -35,14 +36,20 @@ planeId = p.loadURDF("plane.urdf")
 # (the world geometry)
 p.loadSDF("world.sdf")
 # (the robot geometry)
-p.loadURDF("body.urdf")
+robotID=p.loadURDF("body.urdf")
+
+# Prepare to simulate the robots 
+# This command is required whenever you use sensors or motors.
+pyrosim.Prepare_To_Simulate(robotID)
 
 ## SIMULATION LOOP ##
 
 # Step the world:
 for t in range(5000):
-    print(f"t={t}")
+    # print(f"t={t}")
     p.stepSimulation()
+    backLegTouch = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
+    print(backLegTouch)
     time.sleep(1/240)
     
 p.disconnect()

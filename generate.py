@@ -32,22 +32,16 @@ def Create_World():
 
 # Define a function to generate the a virtual robot to put in the world:
 def Create_Robot(position=[0.5,0,0.5],n_links=3):
-    # Compute the complete list of required absolute and relative link and joint positions:
-    root_link=np.array(position)
-    links=[root_link]
-    joints=[]
-    for i in range(n_links-1):
-        joints.append(np.array([1, 0, 1] if i == 0 else [1, 0, 0]))
-        links.append(np.array([0.5, 0, 0.5 if i % 2 == 0 else -0.5]))
-
     # Tell pyrosim where to save the geometry:
     pyrosim.Start_URDF("body.urdf")
-    
-    # Define the robot body:
-    for i, pos in enumerate(links):
-        pyrosim.Send_Cube(name=f"Link{i}", pos=pos, size=[1, 1, 1])
-    for i, pos in enumerate(joints):
-        pyrosim.Send_Joint(name=f"Link{i}_Link{i+1}", parent=f"Link{i}", child=f"Link{i+1}", type="revolute", position=pos)
+    # Root link: Torso
+    pyrosim.Send_Cube(name="Torso", pos=[1.5,0,1.5],size=[1,1,1])
+    # BackLeg
+    pyrosim.Send_Joint(name="Torso_BackLeg", parent="Torso", child="BackLeg", type="revolute", position=[1.0,0,1.0])
+    pyrosim.Send_Cube(name="BackLeg", pos=[-0.5,0,-0.5],size=[1,1,1])
+    # FrontLeg
+    pyrosim.Send_Joint(name="Torso_FrontLeg", parent="Torso", child="FrontLeg", type="revolute", position=[2.0,0,1.0])
+    pyrosim.Send_Cube(name="FrontLeg", pos=[0.5,0,-0.5],size=[1,1,1])
 
     pyrosim.End()
 
