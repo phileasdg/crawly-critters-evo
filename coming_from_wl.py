@@ -34,3 +34,11 @@ def riffle(a, b):
     # Assign all element of b to the odd positions:
     out[1::2] = b
     return out
+
+## Predicate functions:
+
+def even_q(n):
+    return n%2 == 0
+
+def odd_q(n):
+    return n%2 == 1

@@ -28,31 +28,27 @@ def Create_World():
 
     # Close the SDF file and write it to disk:
     pyrosim.End()
+        
 
 # Define a function to generate the a virtual robot to put in the world:
-def Create_Robot():
-    # Absolute positions: [link, joint, link, ...]:
-    chain=[[0, 0, 0.5], [0, 0, 1], [0, 0, 1.5], [0, 0, 2], [0, 0, 2.5], [0, 0.5, 2.5], [0, 1, 2.5], [0, 1.5, 2.5], [0, 2, 2.5], [0, 2, 2], [0, 2, 1.5], [0, 2, 1], [0, 2, 0.5]]
-    # Unzip the chain into the lists for links and joints:
-    absolute_links = np.array(chain[::2])
-    absolute_joints = np.array(chain[1::2])
-    
-    # Compute the relative positions for all links and joints that are downstream from 
-    # the root link and root joint, relative to each element's upstream joint:
-    rel_links=absolute_links[1:]-absolute_joints # This works because every link is directly preceded by a joint.
-    rel_joints=np.diff(absolute_joints,axis=0) # Differences between consecutive joints.
+def Create_Robot(position=[0.5,0,0.5],n_links=3):
+    # Compute the complete list of required absolute and relative link and joint positions:
+    root_link=np.array(position)
+    links=[root_link]
+    joints=[]
+    for i in range(n_links-1):
+        joints.append(np.array([1, 0, 1] if i == 0 else [1, 0, 0]))
+        links.append(np.array([0.5, 0, 0.5 if i % 2 == 0 else -0.5]))
 
     # Tell pyrosim where to save the geometry:
     pyrosim.Start_URDF("body.urdf")
     
     # Define the robot body:
-    pyrosim.Send_Cube(name="Link0",pos=absolute_links[0],size=[1,1,1]) # Root link    
-    pyrosim.Send_Joint(name="Link0_Link1",parent="Link0",child="Link1",type="revolute",position=absolute_joints[0]) # Root joint
-    for i, pos in enumerate(rel_joints,start=1):
-        pyrosim.Send_Joint(name=f"Link{i}_Link{i+1}",parent=f"Link{i}",child=f"Link{i+1}",type="revolute",position=pos)
-    for i, pos in enumerate(rel_links,start=1):
-        pyrosim.Send_Cube(name=f"Link{i}",pos=pos,size=[1,1,1]) 
-        
+    for i, pos in enumerate(links):
+        pyrosim.Send_Cube(name=f"Link{i}", pos=pos, size=[1, 1, 1])
+    for i, pos in enumerate(joints):
+        pyrosim.Send_Joint(name=f"Link{i}_Link{i+1}", parent=f"Link{i}", child=f"Link{i+1}", type="revolute", position=pos)
+
     pyrosim.End()
 
 # Create the world
