@@ -18,7 +18,7 @@ os.chdir(os.path.dirname(__file__))
 # Define a function to generate the world geometry:
 def Create_World():
     # Tell pyrosim where to save the geometry:
-    pyrosim.Start_SDF("world.sdf")
+    pyrosim.Start_SDF("data/worlds/world.sdf")
 
     # Send a cube to the world:
     pyrosim.Send_Cube(
@@ -29,11 +29,10 @@ def Create_World():
     # Close the SDF file and write it to disk:
     pyrosim.End()
         
-
 # Define a function to generate the a virtual robot to put in the world:
 def Create_Robot(position=[0.5,0,0.5],n_links=3):
     # Tell pyrosim where to save the geometry:
-    pyrosim.Start_URDF("body.urdf")
+    pyrosim.Start_URDF("data/robots/body.urdf")
     # Root link: Torso
     pyrosim.Send_Cube(name="Torso", pos=[1.5,0,1.5],size=[1,1,1])
     # BackLeg
