@@ -19,10 +19,11 @@ os.chdir(os.path.dirname(__file__))
 # 1. Simulation Parameters: #
 
 # Simulation duration (ticks):
-simDuration = 5000
+simDuration = 2000
 
 # Initialize an array to store sensor values over time:
 backLegSensorValues = np.zeros(simDuration)
+frontLegSensorValues = np.zeros(simDuration)
 
 # 2. Simulation Environment Setup #
 
@@ -60,7 +61,13 @@ for t in range(simDuration):
     # print(f"t={t}")
     p.stepSimulation()
     backLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
-    print(backLegSensorValues[t])
+    frontLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
     time.sleep(1/240)
     
 p.disconnect()
+
+## POST SIMULATION ##
+
+# Save the sensor data:
+np.save("data/results/backLegSensorValues.npy",backLegSensorValues)
+np.save("data/results/frontLegSensorValues.npy",frontLegSensorValues)
