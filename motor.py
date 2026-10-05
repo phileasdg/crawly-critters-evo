@@ -6,11 +6,12 @@ import constants as c
 class MOTOR:
     def __init__(self,jointName):
         self.jointName=jointName
+        print(f"self.jointName={self.jointName}")
         self.Prepare_To_Act()
 
     def Prepare_To_Act(self):
         self.amplitude=c.amplitude
-        self.frequency=c.frequency
+        self.frequency=c.frequency if self.jointName==b'Torso_BackLeg' else c.frequency/2
         self.offset=c.phaseOffset
         self.motorValues=self.amplitude*np.sin(self.frequency*np.linspace(0,2*np.pi,c.simDuration)+self.offset)
 
@@ -21,4 +22,6 @@ class MOTOR:
             controlMode=p.POSITION_CONTROL,
             targetPosition=self.motorValues[t],
             maxForce=50)
-            
+    
+    def Save_Values(self):
+        np.save("data/results/"+self.jointName.decode()+"MotorValues.npy",self.motorValues)

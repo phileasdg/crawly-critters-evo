@@ -9,7 +9,7 @@ frameDuration=1/240
 
 # Motor parameters:
 amplitude=np.pi/4
-frequency=100
+frequency=10
 phaseOffset=0
 
 # frontLegAmplitude=np.pi/4
