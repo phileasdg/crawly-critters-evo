@@ -1,106 +1,100 @@
-## DEPENDENCIES ##
+from simulation import SIMULATION
 
-# Ludobots requirements:
-import pybullet as p
-import pybullet_data
-import time
-import pyrosim.pyrosim as pyrosim
-import numpy as np
+simulation = SIMULATION()
+simulation.Run()
 
-# My own imports:
-import os
+# ## DEPENDENCIES ##
 
-## FILE SETUP ##
+# # Ludobots requirements:
+# import pybullet as p
+# import pybullet_data
+# import time
+# import pyrosim.pyrosim as pyrosim
+# import numpy as np
+# import constants as c
+# from simulation import SIMULATION
 
-os.chdir(os.path.dirname(__file__))
+# # My own imports:
+# import os
 
-## SIMULATION SETUP ##
+# ## FILE SETUP ##
 
-# 1. Simulation Parameters: #
+# os.chdir(os.path.dirname(__file__))
 
-# Simulation duration (ticks):
-simDuration = 10000
-# Frame duration (in seconds):
-frameDuration = 1/2000#1/240
+# ## SIMULATION SETUP ##
 
-# Sensor arrays (to store sensor values over time):
-backLegSensorValues = np.zeros(simDuration)
-frontLegSensorValues = np.zeros(simDuration)
+# # Sensor arrays (to store sensor values over time):
+# backLegSensorValues = np.zeros(c.simDuration)
+# frontLegSensorValues = np.zeros(c.simDuration)
 
-# Target motor angles:
-frontLegAmplitude=np.pi/4
-frontLegFrequency=50
-frontLegPhaseOffset=0
-backLegAmplitude=np.pi/4
-backLegFrequency=50
-backLegPhaseOffset=np.pi/2
-frontLegTargetAngles = np.interp(frontLegAmplitude*np.sin(frontLegFrequency*np.linspace(0,2*np.pi,simDuration)),[-1,1],[-np.pi/4,np.pi/4])
-backLegTargetAngles = np.interp(backLegAmplitude*np.sin(backLegFrequency*np.linspace(0,2*np.pi,simDuration)+backLegPhaseOffset),[-1,1],[-np.pi/4,np.pi/4])
-np.save("data/results/frontLegTargetAngles.npy",frontLegTargetAngles)
-np.save("data/results/backLegTargetAngles.npy",backLegTargetAngles)
+# # Target motor angles:
+# frontLegTargetAngles = np.interp(c.frontLegAmplitude*np.sin(c.frontLegFrequency*np.linspace(0,2*np.pi,c.simDuration)),[-1,1],[-np.pi/4,np.pi/4])
+# backLegTargetAngles = np.interp(c.backLegAmplitude*np.sin(c.backLegFrequency*np.linspace(0,2*np.pi,c.simDuration)+c.backLegPhaseOffset),[-1,1],[-np.pi/4,np.pi/4])
+# np.save("data/results/frontLegTargetAngles.npy",frontLegTargetAngles)
+# np.save("data/results/backLegTargetAngles.npy",backLegTargetAngles)
 
-# 2. Simulation Environment Setup #
+# # 2. Simulation Environment Setup #
 
-# Connect to the physics sim GUI:
-physicsClient = p.connect(p.GUI)
+# # Connect to the physics sim GUI:
+# physicsClient = p.connect(p.GUI)
 
-# Tell PyBullet where to look for files:
-p.setAdditionalSearchPath(pybullet_data.getDataPath())
+# # Tell PyBullet where to look for files:
+# p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
-# Optional: disable the GUI sidebars
-p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+# # Optional: disable the GUI sidebars
+# p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 
-## WORLD SETUP ##
+# ## WORLD SETUP ##
 
-# Set gravity:
-p.setGravity(0,0,-9.8)
-# p.setGravity(0,0,-9.8,physicsClient) # (Just in case we need to specify the client explicitly)
+# # Set gravity:
+# p.setGravity(0,0,-9.8)
+# # p.setGravity(0,0,-9.8,physicsClient) # (Just in case we need to specify the client explicitly)
 
-# Import geometry 
-# (a floor)
-planeId = p.loadURDF("plane.urdf")
-# (the world geometry)
-p.loadSDF("data/worlds/world.sdf")
-# (the robot geometry)
-robotID=p.loadURDF("data/robots/body.urdf")
+# # Import geometry 
+# # (a floor)
+# planeId = p.loadURDF("plane.urdf")
+# # (the world geometry)
+# p.loadSDF("data/worlds/world.sdf")
+# # (the robot geometry)
+# robotID=p.loadURDF("data/robots/body.urdf")
 
-# Prepare to simulate the robots 
-# This command is required whenever you use sensors or motors.
-pyrosim.Prepare_To_Simulate(robotID)
+# # Prepare to simulate the robots 
+# # This command is required whenever you use sensors or motors.
+# pyrosim.Prepare_To_Simulate(robotID)
 
-## SIMULATION LOOP ##
-# Headstart (to give me time to start recording my video)
-p.stepSimulation()
-time.sleep(3)
-# Step the world:
-for t in range(simDuration):
-    # print(f"t={t}")
-    p.stepSimulation()
-    backLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
-    frontLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
+# ## SIMULATION LOOP ##
+# # Headstart (to give me time to start recording my video)
+# p.stepSimulation()
+# time.sleep(3)
+# # Step the world:
+# for t in range(c.simDuration):
+#     # print(f"t={t}")
+#     p.stepSimulation()
+#     backLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
+#     frontLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
     
-    # Front leg
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex=robotID,
-        jointName=b"Torso_FrontLeg",
-        controlMode=p.POSITION_CONTROL,
-        targetPosition=frontLegTargetAngles[t],
-        maxForce=50)
+#     # Front leg
+#     pyrosim.Set_Motor_For_Joint(
+#         bodyIndex=robotID,
+#         jointName=b"Torso_FrontLeg",
+#         controlMode=p.POSITION_CONTROL,
+#         targetPosition=frontLegTargetAngles[t],
+#         maxForce=50)
 
-    # Back leg
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex=robotID,
-        jointName=b"Torso_BackLeg",
-        controlMode=p.POSITION_CONTROL,
-        targetPosition=backLegTargetAngles[t],
-        maxForce=50)
+#     # Back leg
+#     pyrosim.Set_Motor_For_Joint(
+#         bodyIndex=robotID,
+#         jointName=b"Torso_BackLeg",
+#         controlMode=p.POSITION_CONTROL,
+#         targetPosition=backLegTargetAngles[t],
+#         maxForce=50)
     
-    time.sleep(frameDuration)
+#     time.sleep(c.frameDuration)
     
-p.disconnect()
+# p.disconnect()
 
-## POST SIMULATION ##
+# ## POST SIMULATION ##
 
-# Save the sensor data:
-np.save("data/results/backLegSensorValues.npy",backLegSensorValues)
-np.save("data/results/frontLegSensorValues.npy",frontLegSensorValues)
+# # Save the sensor data:
+# np.save("data/results/backLegSensorValues.npy",backLegSensorValues)
+# np.save("data/results/frontLegSensorValues.npy",frontLegSensorValues)
