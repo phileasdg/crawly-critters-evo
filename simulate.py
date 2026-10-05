@@ -6,11 +6,9 @@ import pybullet_data
 import time
 import pyrosim.pyrosim as pyrosim
 import numpy as np
-import random
 
 # My own imports:
 import os
-import math
 
 ## FILE SETUP ##
 
@@ -22,10 +20,24 @@ os.chdir(os.path.dirname(__file__))
 
 # Simulation duration (ticks):
 simDuration = 10000
+# Frame duration (in seconds):
+frameDuration = 1/2000#1/240
 
-# Initialize an array to store sensor values over time:
+# Sensor arrays (to store sensor values over time):
 backLegSensorValues = np.zeros(simDuration)
 frontLegSensorValues = np.zeros(simDuration)
+
+# Target motor angles:
+frontLegAmplitude=np.pi/4
+frontLegFrequency=50
+frontLegPhaseOffset=0
+backLegAmplitude=np.pi/4
+backLegFrequency=50
+backLegPhaseOffset=np.pi/2
+frontLegTargetAngles = np.interp(frontLegAmplitude*np.sin(frontLegFrequency*np.linspace(0,2*np.pi,simDuration)),[-1,1],[-np.pi/4,np.pi/4])
+backLegTargetAngles = np.interp(backLegAmplitude*np.sin(backLegFrequency*np.linspace(0,2*np.pi,simDuration)+backLegPhaseOffset),[-1,1],[-np.pi/4,np.pi/4])
+np.save("data/results/frontLegTargetAngles.npy",frontLegTargetAngles)
+np.save("data/results/backLegTargetAngles.npy",backLegTargetAngles)
 
 # 2. Simulation Environment Setup #
 
@@ -58,27 +70,32 @@ pyrosim.Prepare_To_Simulate(robotID)
 
 ## SIMULATION LOOP ##
 # Headstart (to give me time to start recording my video)
-# p.stepSimulation()
-# time.sleep(3)
+p.stepSimulation()
+time.sleep(3)
 # Step the world:
 for t in range(simDuration):
     # print(f"t={t}")
     p.stepSimulation()
     backLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
     frontLegSensorValues[t] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex=robotID,
-        jointName=b"Torso_BackLeg",
-        controlMode=p.POSITION_CONTROL,
-        targetPosition=random.uniform(-math.pi/2,math.pi/2),
-        maxForce=50)
+    
+    # Front leg
     pyrosim.Set_Motor_For_Joint(
         bodyIndex=robotID,
         jointName=b"Torso_FrontLeg",
         controlMode=p.POSITION_CONTROL,
-        targetPosition=random.uniform(-math.pi/2,math.pi/2),
+        targetPosition=frontLegTargetAngles[t],
         maxForce=50)
-    time.sleep(1/240)
+
+    # Back leg
+    pyrosim.Set_Motor_For_Joint(
+        bodyIndex=robotID,
+        jointName=b"Torso_BackLeg",
+        controlMode=p.POSITION_CONTROL,
+        targetPosition=backLegTargetAngles[t],
+        maxForce=50)
+    
+    time.sleep(frameDuration)
     
 p.disconnect()
 
